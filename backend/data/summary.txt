@@ -1,0 +1,4 @@
+With over nine years of full stack software engineering experience, I am passionate about building scalable, reliable, and user-friendly applications that solve real-world problems. I have a strong background in Ruby/Rails, Node JS, Javascript/React, C, and AWS services, as well as a Associate Cloud Engineer GCP certfication.
+
+Currently, I am looking into the integration of AI solutions with traditional web solutions.
+I am always eager to learn new technologies and collaborate with other engineers to deliver high-quality solutions.

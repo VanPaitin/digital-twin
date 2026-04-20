@@ -1,0 +1,24 @@
+{
+  "full_name": "Mayowa Pitan",
+  "name": "Van Paitin",
+  "current_role": "Senior Software Engineer at Andela",
+  "location": "Lagos, Nigeria",
+  "email": "mayowasolomon@gmail.com",
+  "linkedin": "linkedin.com/in/mayowapitan",
+  "specialties": [
+    "Backend Development - Ruby on Rails, Node.js, Python",
+    "Frontend Development - React, Typescript",
+    "AI Integration - OpenAI API, LangChain",
+    "Cloud Services - AWS, Heroku, GCP",
+    "Database Management - PostgreSQL, MySQL",
+    "DevOps - Docker, CI/CD pipelines"
+  ],
+  "years_experience": 10,
+  "education": [
+    {
+      "degree": "Bachelor of Science in Mechanical Engineering",
+      "institution": "University of Ibadan",
+      "year": "2014"
+    }
+  ]
+}
