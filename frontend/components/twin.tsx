@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, LogOut } from 'lucide-react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'
 
 interface Message {
     id: string;
@@ -14,16 +16,41 @@ export default function Twin() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [sessionId, setSessionId] = useState<string>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const sessionId = () => localStorage.getItem('twin_session_id');
+
+    const clearSession = () => {
+        localStorage.removeItem('twin_session_id');
+        setMessages([]);
+        setInput('');
+    };
+
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    useEffect(() => {
+        if (sessionId()) {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/conversation/${sessionId()}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(res => res.json())
+            .then(({ messages }) => {
+                setMessages(messages.map((msg: Message) => ({
+                    id: msg.timestamp,
+                    role: msg.role as 'user' | 'assistant',
+                    content: msg.content,
+                    timestamp: new Date(msg.timestamp),
+                })));
+            });
+        }
+    }, []);
 
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
@@ -48,7 +75,7 @@ export default function Twin() {
                 },
                 body: JSON.stringify({
                     message: input,
-                    session_id: sessionId || undefined,
+                    session_id: sessionId() || undefined,
                 }),
             });
 
@@ -56,8 +83,8 @@ export default function Twin() {
 
             const data = await response.json();
 
-            if (!sessionId) {
-                setSessionId(data.session_id);
+            if (!sessionId() && data.session_id) {
+                localStorage.setItem('twin_session_id', data.session_id);
             }
 
             const assistantMessage: Message = {
@@ -94,11 +121,25 @@ export default function Twin() {
         <div className="flex flex-col h-full bg-gray-50 rounded-lg shadow-lg">
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-4 rounded-t-lg">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Bot className="w-6 h-6" />
-                    AI Digital Twin
-                </h2>
-                <p className="text-sm text-slate-300 mt-1">Your AI course companion</p>
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                            <Bot className="w-6 h-6" />
+                            AI Digital Twin
+                        </h2>
+                        <p className="text-sm text-slate-300 mt-1">Your AI course companion</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={clearSession}
+                        className="p-2 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition-colors"
+                        aria-label="Clear session"
+                        title="Clear session"
+                    >
+                        <LogOut className="w-5 h-5" />
+                        Clear Chat
+                    </button>
+                </div>
             </div>
 
             {/* Messages */}
@@ -133,7 +174,14 @@ export default function Twin() {
                                     : 'bg-white border border-gray-200 text-gray-800'
                             }`}
                         >
-                            <p className="whitespace-pre-wrap">{message.content}</p>
+                            <Markdown
+                                remarkPlugins={[remarkGfm]} components={{
+                                h3: ({...props}) => (
+                                    <h3 className="font-semibold text-orange-500 italic" {...props} />
+                                )
+                            }}>
+                                {message.content}
+                            </Markdown>
                             <p
                                 className={`text-xs mt-1 ${
                                     message.role === 'user' ? 'text-slate-300' : 'text-gray-500'

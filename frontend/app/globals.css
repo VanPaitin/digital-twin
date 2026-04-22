@@ -23,3 +23,8 @@
 .delay-200 {
   animation-delay: 0.2s;
 }
+
+strong {
+  color: initial;
+  font-style: initial;
+}
